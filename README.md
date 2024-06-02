@@ -166,7 +166,7 @@ Here is the list of data I wanted to gather:
 | dragons                  | Provides team-wide buff, gold and experience                                       | Iterate over each 'monsterType': 'DRAGON' and read 'killerTeamId'                           |
 | heralds                  | Once killed, a herald can be placed to destroy buildings                           | Iterade over each 'monsterType': 'RIFTHERALD' and read 'killerTeamId'                       |
 | voidGrubsKilled          | Once killed, increases the damege dealt to towers                                  | Iterate over each 'monsterType': 'HORDE' and read 'killerTeamId'                            |
-| towerDestroyed           | Provides gold, opens the map                                                       | Iterate over each 'type': 'BUILDING_KILL' where 'buildingType': 'TOWER_BUILDING'            |
+| towersDestroyed          | Provides gold, opens the map                                                       | Iterate over each 'type': 'BUILDING_KILL' where 'buildingType': 'TOWER_BUILDING'            |
 | totalGold                | Gold is required to purchase items                                                 | Read 'totalGold' from 'stats' per player                                                    |
 | avgLevel                 | Player get better stats when advancing to the next level                           | Read 'level' for each summoner and divide by 5                                              |
 | totalMinionsKilled       | Minions provide gold and experience                                                | Read 'minionsKilled' and add up for each player                                             |
@@ -174,5 +174,45 @@ Here is the list of data I wanted to gather:
 | csPerMinute              | Amount of minions killed per minute                                                | Add totalMinionsKilled for each player, divide by 5, divide by 15                           |
 | goldPerMinute            | Amount of gold acquired per minute                                                 | Read 'goldPerSecond' for each player, add up and divide by 5                                |
 | gameDuration             |                                                                                    | 'GAME_END'-event                                                                            |
+
+
+The table below shows my variables and their data types:
+
+| **Variable**                     | **Datatype** |
+|----------------------------------|--------------|
+| blueTeamWin                      | integer      |
+| blueTeamWardsPlaced              | float        |
+| blueTeamWardsDestroyed           | float        |
+| blueTeamFirstBlood               | integer      |
+| blueTeamKills                    | integer      |
+| blueTeamDeaths                   | integer      |
+| blueTeamAssists                  | integer      |
+| blueTeamDragons                  | integer      |
+| blueTeamVoidGrubsKilled          | intefer      |
+| blueTeamHeralds                  | integer      |
+| blueTeamTowerDestroyed           | integer      |
+| blueTeamTotalGold                | integer      |
+| blueTeamAvgLevel                 | float        |
+| blueTeamTotalMinionsKilled       | integer      |
+| blueTeamTotalJungleMonsterKilled | integer      |
+| blueTeamCsPerMinute              | float        |
+| blueTeamGoldPerMinute            | float        |
+| gameDuration (in seconds)        | integer      |
+
+Please note, there were the same variables for the red team aswell (excluding gameDuration obviously).
+blueTeamWin was numeric value: 1 for True and 0 for False, to simplify the handling in the dataframe later.
+Collected raw data was stored originally in .csv file.
+
+The last step was saving the raw match data I got.
+Now there are different ways of storing dataframes. The direct comparison shows [feather](https://arrow.apache.org/docs/python/feather.html) to be the optimal storage file-format:
+
+![dataframes-storage-comparison](readme-resources/storage-comparison.png)
+
+([Source.](https://towardsdatascience.com/the-best-format-to-save-pandas-data-414dca023e0d)
+
+## Data Cleaning
+
+
+
 
 
