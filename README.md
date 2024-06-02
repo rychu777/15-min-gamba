@@ -48,7 +48,7 @@ The second step was to convert my **1000** summoner id's into PUUID's, which are
 
 Now for each player, with the help of the already acquired PUUID I had to acquire his history of ranked games . The ones on which he was classified. To do this, a 'MATCH-V5' endpoint was needed. (specifically, /lol/match/v5/matches/by-puuid/{puuid}/ids) After entering a player's PUUID, it returned his game history in the form of id's of his **100** most recently played ranked games. (**100** was the limit for each player) The process resulted in me getting **100 000** game id's played by the best players on the server.
 
-However, as you can guess, since these are the best players, they play with each other. After checking and removing duplicate game id's. From **100 000** game id's, I was left with only **42172** left (**58.8%** of data was removed}).
+However, as you can guess, since these are the best players, they play with each other. After checking and removing duplicate game id's. From **100 000** game id's, I was left with only **42172** left (**58.8%** of data was removed).
 
 ### Summarisation:
 - I used my self-gathered data
@@ -427,10 +427,10 @@ After training my model I ended up on:
 
 Accuracy of **77.16%** was a very satisfactory result.
 
-*Accuracy* - The proportion of correct predictions (both true positives and true negatives) among the total number of predictions.
-*Precision* - The proportion of true positive predictions among all positive predictions (true positives and false positives). It measures the accuracy of positive predictions.
-*Recall* - The proportion of true positive predictions among all actual positive instances (true positives and false negatives). It measures the ability to identify all positive instances. 
-*F1 Score* - The harmonic mean of precision and recall, providing a single metric that balances both. It is useful when the data is imbalanced.
+- *Accuracy* - The proportion of correct predictions (both true positives and true negatives) among the total number of predictions.
+- *Precision* - The proportion of true positive predictions among all positive predictions (true positives and false positives). It measures the accuracy of positive predictions.
+- *Recall* - The proportion of true positive predictions among all actual positive instances (true positives and false negatives). It measures the ability to identify all positive instances. 
+- *F1 Score* - The harmonic mean of precision and recall, providing a single metric that balances both. It is useful when the data is imbalanced.
 
 ***ROC Curve and AUC***
 
