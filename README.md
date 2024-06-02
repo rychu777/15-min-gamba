@@ -455,10 +455,17 @@ Here is ROC Curve calculated on my resluts...
 ## Review
 
 The whole project was a huge challenge for me. It also made me learn a lot of new things
+
 The classifier created by me predicted the winning team with great accuracy. 
+
 It's worth to mention League of Legends games can last more than an hour, and from 15 minutes until then, there’s a lot more to happen.
+
 I tested the model with a huge number of combinations of hyperparameters, activation functions and activity regulators.
+
 At best, I managed to achieve an accuracy of **77.89%**.
+
 To potentially beat this score, it is probably necessary to collect more detailed data, i. e. to divide the collected gold in teams to specific players, to collect the hero id of the players as well as their chosen runes and items.
+
+I plan to test this approach in the future.
 
 *Thank your for reading and sharing this journey with me.*
