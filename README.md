@@ -206,13 +206,122 @@ Collected raw data was stored originally in .csv file.
 The last step was saving the raw match data I got.
 Now there are different ways of storing dataframes. The direct comparison shows [feather](https://arrow.apache.org/docs/python/feather.html) to be the optimal storage file-format:
 
-![dataframes-storage-comparison](readme-resources/storage-comparison.png)
+![storage-comparison](readme-resources/storage_comparison.png)
 
-([Source.](https://towardsdatascience.com/the-best-format-to-save-pandas-data-414dca023e0d)
+([Source](https://towardsdatascience.com/the-best-format-to-save-pandas-data-414dca023e0d))
 
 ## Data Cleaning
 
+There was only one types of falsy data I had to sort out:
+- falsy data returned by the Riot Games API
 
+Falsy data returned by the Riot Games API was marked by having a '2' in both, blueTeamWin and readTeamWin, to easily sort them out.
+I got rid of these lines by doing:
+
+    df = df[df.blueTeamWin != 2]
+
+resulting in **41 282** (fourty-one-thousand two-hundred and eighty-two) matches left in my data.
+
+## Exploratory Data Analysis
+
+In this chapter I want to explore my data, I want to take a look at the main characteristics and compare certain values.
+
+The very first thing to show is of course the win rate for each team:
+
+![winrate](readme-resources/winrate.png)
+
+The actual win rate overall in EUNE Server for the **MASTER+** blue team is 48.5 % as of [League Of Graphs](https://www.leagueofgraphs.com/pl/stats/blue-vs-red/eune/master) in the current patch as of writing this (14.11).
+The difference-maker was the fact that **MASTER+** means that we took **CHALLANGER**, **GRANDMASTER**, and **ALL** **MASTER** players.
+**MASTER** tier has currently around **15 000** players. 
+
+You can also take a look at the team's win rate depending on having first blood:
+
+![winrate-per-firstblood](readme-resources/first_bloods.png)
+
+The blue team seems to better at winning games when playing from behind while the red team should prefer building an advantage in the early stage of the game.
+
+    Sidenote:
+    When a champion or a team has less gold, experience or stats than the opponent,
+    they are playing from 'behind'.
+
+Another thing I wanted to show is the correlation between the gold and cs per minute:
+
+![cspm-gpm-correlation](readme-resources/cspm_gpm.png)
+
+Out of appearance reasons I only used the data from the blue team if they win and the game duration is over 2.500 (two-thousand five-hundred) seconds.
+Note, that the gold per minute value *should* be higher than the cs per minute value. I divided the gold per minute value by 10 for appearance.  
+Cs'ing is not the only source of gold income, but it obviously takes a great part of it.
+
+    Sidenote:
+    'Cs-ing' describes the procedure of farming minions.
+
+But I am sure the most interesting view is a heatmap:
+
+![heatmap](readme-resources/heatmap.png)
+
+The labels on the x-axis are a bit off, I couldn't find a way to fix this. Please orientate on the y-axis.
+These are the values from the blue team, excluding the game duration.
+
+This view is the best to show correlations for variables.
+I can for example see that the assists and kills are strongly positively correlated, which wasn't really a surprise.
+So is the amount of total minions killed and the cs per minute.
+
+## Feature Engineering
+
+This chapter covers the creation of variables which were most likely having the biggest impact of the probability of winning.
+This also is where I divided my testing, validation and training data from my whole data set.
+
+I will start off with separating my data:
+
+    import pandas as pd
+
+    df = pd.read_feather('data-final/data.feather')
+
+    df_train_val = df2.sample(frac=0.9, random_state=777)
+    df_test = df2.drop(df_train_val.index)
+
+    df_val = df_train_val.sample(frac=0.15, random_state=777)
+    df_train = df_train_val.drop(df_val.index)
+
+My training data consisted of 75 % of the whole data set, while the validation data took 15% and the last 10% belonged to testing data.
+
+After that, I added variables to simplify my model for later learning purposes:
+
+| **Variable**                    | **Calculation**                                                                  |
+|---------------------------------|----------------------------------------------------------------------------------|
+| blueTeamWardRetentionRatio      | (blueTeamWardsPlaced - redTeamWardsDestroyed) / blueTeanWardsPlaced              |
+| redTeamWardRetentionRatio       | -1 * (redTeamWardsPlaced - blueTeamWardsDestroyed) / redTeamWardsPlaced          |
+| blueTeamNetKills                | blueTeamKills - redTeamKills                                                     |
+| blueTeamTeamworkGradeDiff       | (df.blueTeamAssists * df.blueTeamKills) - (df.redTeamAssists * df.redTeamKills)  |
+| blueTeamJungleMonstersKilledDiff | blueTeamTotalJungleMinionsKilled - redTeamTotalJungleMinionsKilled              |
+| blueTeamMinionsKilledDiff       | blueTeamTotalMinionsKilled - redTeamTotalMinionsKilled                           |
+| blueTeamAvgLevelDiff            | blueTeamAvgLevel - redTeamAvgLevel                                               |
+| blueTeamCsPerMinuteDiff         | blueTeamCsPerMinute - redTeamCsPerMinute                                         |
+| blueTeamGoldPerMinuteDiff       | blueTeamGoldPerMinute - redTeamGoldPerMinute                                     |
+| blueTeamTowersDestroyedDiff     | blueTeamTowersDestroyed - redTeamTowersDestroyed                                 |
+| blueTeamDragonsKilledDiff       | blueTeamDragonsKilled - redTeamDragonsKlled                                      |
+| blueTeamHeraldsKilledDiff       | blueTeamHeraldsKilled - redTeamHeraldsKlled                                      |
+| blueTeamVoidGrubsKilledDiff     | blueTeamVoidGrubsKilled - redTeamVoidGrubsKilled                                 |
+| blueTeamWin                     | blueTeamWin                                                                      |
+
+Note that I only need these variables for one team (in this case blue team), since red team wins if blue team does not.
+
+I added these variables simply by doing:
+
+    df2['blueTeamWardRetentionRatio'] = (df.blueTeamWardsPlaced - df.redTeamWardsDestroyed)/df.blueTeamWardsPlaced
+    df2['redTeamWardRetentionRatio'] = -1 * (df.redTeamWardsPlaced - df.blueTeamWardsDestroyed)/df.redTeamWardsPlaced
+    df2['blueTeamNetKills'] = (df.blueTeamKills - df.redTeamKills)
+    df2['blueTeamTeamWorkGradeDiff'] = (df.blueTeamAssists * df.blueTeamKills) - (df.redTeamAssists * df.redTeamKills)
+    df2['blueTeamJungleMonstersKilledDiff'] = (df.blueTeamTotalJungleMonstersKilled - df.redTeamTotalJungleMonstersKilled)
+    df2['blueTeamMinionsKilledDiff'] = (df.blueTeamTotalMinionsKilled - df.redTeamTotalMinionsKilled)
+    df2['blueTeamAvgLevelDiff'] = (df.blueTeamAvgLevel - df.redTeamAvgLevel)
+    df2['blueTeamCsPerMinuteDiff'] = (df.blueTeamCsPerMinute - df.redTeamCsPerMinute)
+    df2['blueTeamGoldPerMinuteDiff'] = (df.blueTeamGoldPerMinute - df.redTeamGoldPerMinute)
+    df2['blueTeamTowersDestroyedDiff'] = (df.blueTeamTowersDestroyed - df.redTeamTowersDestroyed)
+    df2['blueTeamDragonsKilledDiff'] = (df.blueTeamDragonsKilled - df.redTeamDragonsKilled)
+    df2['blueTeamHeraldsKilledDiff'] = (df.blueTeamHeraldsKilled - df.redTeamHeraldsKilled)
+    df2['blueTeamVoidGrubsKilledDiff'] = (df.blueTeamVoidGrubsKilled - df.redTeamVoidGrubsKilled)
+    df2['blueTeamWin'] = df.blueTeamWin
 
 
 
