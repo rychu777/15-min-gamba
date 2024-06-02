@@ -4,6 +4,7 @@ In the project, I decided to build and train a neural network classifier.
 
 ## Table of Content
 - [Project Object](#project-object)
+- [Technologies](#technologies)
 - [Introduction](#introduction)
 - [Collecting the Data](#collecting-the-data)
 - [The Match Data](#the-match-data)
@@ -18,6 +19,15 @@ In the project, I decided to build and train a neural network classifier.
 ## Project Object
 
 The goal of the project is to effectively predict the outcome of a League of Legends game based on the state of the game at the 15 minutes mark.
+## Technologies
+
+- Keras
+- Sklearn
+- Matplotlib
+- Numpy
+- Seaborn
+- Csv
+- Requests
 
 ## Introduction
 League of Legends (LoL) is a highly popular online multiplayer battle arena video game developed and published by Riot Games. It's a free-to-play game that was first released in 2009, and since then, it has become one of the most prominent and influential games in the esports industry.
