@@ -2,7 +2,7 @@
 # Data science project based on League of Legends
 ## Table of Content
 - [Project Object](#project-object)
-- [Introduction](#introducion)
+- [Introduction](#introduction)
 - [Collecting the Data](#collecting-the-data)
 - [The Match Data](#the-match-data)
 - [Data Cleaning](#data-cleaning)
@@ -19,7 +19,6 @@
 The goal of the project is to effectively predict the outcome of a League of Legends game based on the state of the game at the 15 minutes mark.
 
 ## Introduction
-
 League of Legends (LoL) is a highly popular online multiplayer battle arena video game developed and published by Riot Games. It's a free-to-play game that was first released in 2009, and since then, it has become one of the most prominent and influential games in the esports industry.
 
 In League of Legends, players assume the role of a "champion," each with their own unique abilities and playstyles, and are placed into teams of typically five players. The objective varies depending on the game mode, but generally involves destroying the opposing team's Nexus, a structure located within their base. Players must navigate through various lanes and engage in strategic battles with both computer-controlled minions and enemy champions to achieve victory.
@@ -60,8 +59,8 @@ However, as you can guess, since these are the best players, they play with each
 
 This section is about designind the data frame.
 
-When querying a match with a timeline with the average game duration (which is around *28.1* minutes on EUNE server), the returning JSON file includes about **37k** (thirty-seven thousand) lines, which is way too much to this README. 
-Therefore, I will display a simplified 'pseudo'-version of it for you to be able to follow up:
+When querying a match with a timeline with the average game duration (which was around **28.1** minutes on EUNE server), the returning JSON file included about **37k** (thirty-seven thousand) lines, which was way too much to put in this README.
+Therefore, I decided to display a simplified 'pseudo'-version of it for you to be able to follow up:
 
     metadata
         match id
@@ -88,5 +87,92 @@ Therefore, I will display a simplified 'pseudo'-version of it for you to be able
             player 10
             timestamp
         ...
+
+Note that there was a new 'event' and 'stats' entries every minute. That means, including the 0th minute, there were 1 + 28 'event'/'stats' entries in a match with a duration of 28 minutes.
+I focused on only the 'stats' at the 15-minute timestamp since that includes the values I want.
+
+The timestamps are in milliseconds and sadly there is not always the same timestamp at the exactly 15-minute mark.
+An example was game when timestamp occured at **900207** miliseconds, which was around **15.00345** minutes.
+I couldn't look at a decent amount of games to be able to confidently define the average of the 15-minute timestamp, so I used 900000-901000 milliseconds (or 15-15,0166667 minutes).
+Here is an example of the 'stats' of one player at a certain timestamp:
+
+    "1": {
+        "championStats": {
+            "abilityHaste": 0,
+            "abilityPower": 0,
+            "armor": 42,
+            "armorPen": 0,
+            "armorPenPercent": 0,
+            "attackDamage": 73,
+            "attackSpeed": 127,
+            "bonusArmorPenPercent": 0,
+            "bonusMagicPenPercent": 0,
+            "ccReduction": 5,
+            "cooldownReduction": 0,
+            "health": 685,
+            "healthMax": 685,
+            "healthRegen": 17,
+            "lifesteal": 0,
+            "magicPen": 0,
+            "magicPenPercent": 0,
+            "magicResist": 32,
+            "movementSpeed": 350,
+            "omnivamp": 0,
+            "physicalVamp": 0,
+            "power": 339,
+            "powerMax": 339,
+            "powerRegen": 15,
+            "spellVamp": 0
+        },
+        "currentGold": 98,
+        "damageStats": {
+            "magicDamageDone": 0,
+            "magicDamageDoneToChampions": 0,
+            "magicDamageTaken": 0,
+            "physicalDamageDone": 440,
+            "physicalDamageDoneToChampions": 0,
+            "physicalDamageTaken": 0,
+            "totalDamageDone": 440,
+            "totalDamageDoneToChampions": 0,
+            "totalDamageTaken": 0,
+            "trueDamageDone": 0,
+            "trueDamageDoneToChampions": 0,
+            "trueDamageTaken": 0
+        },
+        "goldPerSecond": 0,
+        "jungleMinionsKilled": 0,
+        "level": 1,
+        "minionsKilled": 4,
+        "participantId": 1,
+        "position": {
+            "x": 2206,
+            "y": 12847
+        },
+        "timeEnemySpentControlled": 0,
+        "totalGold": 598,
+        "xp": 211
+    }
+Here is the list of data I wanted to gather:
+
+| **Value**                | **Explanation**                                                                    | **Where/How to get**                                                                        |
+|--------------------------|------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| win                      | Which team did win                                                                 | 'GAME_END'-event                                                                            |
+| wardsPlaced              | A ward provides vision and might prevent death                                     | Iterate over each 'WARD_PLACED'-event and add up                                            |
+| wardsDestroyed           |                                                                                    | Iterate over each 'WARD_KILL'-event and add up                                              |
+| firstBlood               | The first kill in a game provides extra gold                                       | 'killType': 'KILL_FIRST_BLOOD'                                                              |
+| kills                    | Provides gold and experience and prevents enemy from gathering gold and experience | Iterate over each 'type': 'CHAMPION_KILL' and add for each 'killerID'                       |
+| deaths                   |                                                                                    | Iterate over each 'type': 'CHAMPION_KILL' and add for each 'victimID'                       |
+| assists                  | Provides a tiny bit of gold and experience                                         | Iterate over each 'type': 'CHAMPION_KILL' and add 'assistingParticipantIds'                 |
+| dragons                  | Provides team-wide buff, gold and experience                                       | Iterate over each 'monsterType': 'DRAGON' and read 'killerTeamId'                           |
+| heralds                  | Once killed, a herald can be placed to destroy buildings                           | Iterade over each 'monsterType': 'RIFTHERALD' and read 'killerTeamId'                       |
+| voidGrubsKilled          | Once killed, increases the damege dealt to towers                                  | Iterate over each 'monsterType': 'HORDE' and read 'killerTeamId'                            |
+| towerDestroyed           | Provides gold, opens the map                                                       | Iterate over each 'type': 'BUILDING_KILL' where 'buildingType': 'TOWER_BUILDING'            |
+| totalGold                | Gold is required to purchase items                                                 | Read 'totalGold' from 'stats' per player                                                    |
+| avgLevel                 | Player get better stats when advancing to the next level                           | Read 'level' for each summoner and divide by 5                                              |
+| totalMinionsKilled       | Minions provide gold and experience                                                | Read 'minionsKilled' and add up for each player                                             |
+| totalJungleMonsterKilled | Jungle monster provide gold and experience                                         | Read 'jungleMinionsKilled' and add up for each player                                       |
+| csPerMinute              | Amount of minions killed per minute                                                | Add totalMinionsKilled for each player, divide by 5, divide by 15                           |
+| goldPerMinute            | Amount of gold acquired per minute                                                 | Read 'goldPerSecond' for each player, add up and divide by 5                                |
+| gameDuration             |                                                                                    | 'GAME_END'-event                                                                            |
 
 
