@@ -1,6 +1,4 @@
-from back_end.change_format import *
-from back_end.feature_engineering import prepare_data
-from back_end.building_the_model import *
+from model.building_the_model import *
 
 
 def main() -> None:
