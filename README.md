@@ -193,13 +193,13 @@ The table below shows my variables and their data types:
 | blueTeamTowerDestroyed           | integer      |
 | blueTeamTotalGold                | integer      |
 | blueTeamAvgLevel                 | float        |
-| blueTeamTotalMinionsKilled       | integer      |
+| blueTeamTotalMinionsKilled       | integer      |  
 | blueTeamTotalJungleMonsterKilled | integer      |
 | blueTeamCsPerMinute              | float        |
 | blueTeamGoldPerMinute            | float        |
 | gameDuration (in seconds)        | integer      |
 
-Please note, there were the same variables for the red team aswell (excluding gameDuration obviously).
+Please note, there were the same variables for the red team as well (excluding gameDuration obviously).
 blueTeamWin was numeric value: 1 for True and 0 for False, to simplify the handling in the dataframe later.
 Collected raw data was stored originally in .csv file.
 
@@ -323,5 +323,64 @@ I added these variables simply by doing:
     df2['blueTeamVoidGrubsKilledDiff'] = (df.blueTeamVoidGrubsKilled - df.redTeamVoidGrubsKilled)
     df2['blueTeamWin'] = df.blueTeamWin
 
+## Building the Model
 
+I chose Sequential model, because it is appropriate for a plain stack of layers where each layer has exactly one input tensor and one output tensor.
+
+    model = Sequential()
+
+Now the question was how large I wanted my neural network to be.
+I knew my neural network needed to have Input layer with the size of input being set as 14.
+
+    input_layer = Input(shape=(13,))
+    model.add(norm_layer)
+
+The next important layer was Normalization Layer.
+
+    norm_layer = Normalization()
+    norm_layer.adapt(dataset_train_values)
+    model.add(norm_layer)
+    
+The interesting part was the number of hidden layers.
+As of [this]('https://kharshit.github.io/blog/2018/04/27/how-deep-should-neual-nets-be') source, I start of with three hidden layers with 9 neurons each.
+
+Next up I needed some kind of prevention against overfitting.
+I achieved this by adding acticity regularization on specific layers.
+I did this by simply adding the 'activity_regularizer' parameter to the layer.
+I chose L2 activity regularization function. But why?
+
+L2 regularization is used to prevent overfitting in machine learning models by penalizing large parameter values. It encourages the model to learn simpler patterns by adding a penalty term to the loss function proportional to the square of the magnitude of the parameters. By controlling the complexity of the model through regularization, L2 regularization helps improve its ability to generalize to new, unseen data.
+
+    model.add(Dense(9, activation='elu', activity_regularizer=l2(0.0001)))
+    model.add(Dense(9, activation='elu', activity_regularizer=l2(0.0001)))
+    model.add(Dense(9, activation='elu', activity_regularizer=l2(0.0001)))
+
+The last part was adding the output layer:
+
+    model.add(Dense(1, activation='sigmoid', activity_regularizer=l2(0.0001)))
+
+Fitting my model by keras looked like this:
+
+    model.fit(X, y, epochs=200, batch_size=10)
+
+Epochs is the number of times the model is trained on the data.
+Batch size defines the number of samples that will be propagated through the network.
+
+What batch size should have been used?
+
+***Full-Batch Gradient Descent***
+
+- computes the gradient for all training samples first and then updates the parameters
+- inefficient for large datasets as the gradient has to be evaluated for each summand
+
+***Mini-Batch Gradient Descent***
+
+- computes the gradient for batches of the training sample only before updating the parameter
+
+***Stochastic Gradient Descent***
+
+- computes the gradient for one training sample and updates the parameter immediately
+- basically the same as mini-batch gradient descent with a batch size of 1
+
+I decided to use 1024 as batch size with 300 epochs.
 
