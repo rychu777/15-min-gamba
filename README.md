@@ -49,3 +49,44 @@ The second step was to convert my **1000** summoner id's into PUUID's, which are
 Now for each player, with the help of the already acquired PUUID I had to acquire his history of ranked games . The ones on which he was classified. To do this, a 'MATCH-V5' endpoint was needed. (specifically, /lol/match/v5/matches/by-puuid/{puuid}/ids) After entering a player's PUUID, it returned his game history in the form of id's of his **100** most recently played ranked games. (**100** was the limit for each player) The process resulted in me getting **100 000** game id's played by the best players on the server.
 
 However, as you can guess, since these are the best players, they play with each other. After checking and removing duplicate game id's. From **100 000** game id's, I was left with only **42172** left (**58.8%** of data was removed}).
+
+### Summarisation:
+- I used my self-gathered data
+- I got the data with Riot Game's API using different endpoints
+- I used 100 games per player out of 1000 player base
+- I ended up with around 42 000 match entries in my data set
+
+## The Match Data
+
+This section is about designind the data frame.
+
+When querying a match with a timeline with the average game duration (which is around *28.1* minutes on EUNE server), the returning JSON file includes about **37k** (thirty-seven thousand) lines, which is way too much to this README. 
+Therefore, I will display a simplified 'pseudo'-version of it for you to be able to follow up:
+
+    metadata
+        match id
+        participants
+    info
+        event
+            event type
+            timestamp
+            additional event info
+        stats
+            player 1
+            player 2
+            ...
+            player 10
+            timestamp
+        event
+            event type
+            timestamp
+            additional event info
+        stats
+            player 1
+            player 2
+            ...
+            player 10
+            timestamp
+        ...
+
+
