@@ -1,5 +1,7 @@
 15-min-gamba
 # Data science project based on League of Legends
+In the project, I decided to build and train a neural network classifier.
+
 ## Table of Content
 - [Project Object](#project-object)
 - [Introduction](#introduction)
@@ -12,7 +14,6 @@
 - [Bulding the Model](#building-the-model)
 - [Evaluation](#evaluation)
 - [Review](#review)
-- [Perspectives](#perspectives)
 
 ## Project Object
 
@@ -322,6 +323,29 @@ I added these variables simply by doing:
     df2['blueTeamHeraldsKilledDiff'] = (df.blueTeamHeraldsKilled - df.redTeamHeraldsKilled)
     df2['blueTeamVoidGrubsKilledDiff'] = (df.blueTeamVoidGrubsKilled - df.redTeamVoidGrubsKilled)
     df2['blueTeamWin'] = df.blueTeamWin
+## Possible Multicollinearity
+
+Multicollinearity describes the issue with multiple variables correlating when predicting the same outcome.
+
+Say the blue team got first blood, have lots of early-game-champions in their team, decent player and an understanding of extending the advantage they acquired.
+Now surely the blue team will have more options to actively control the game. That results in blue team having more gold and experience.
+If the blue team now wins the game, it's not easy to say which factors (for example gold or experience) had more impact to that.
+
+    Sidenote:
+    A match can be classified in three stages: early-, mid- or late-game.
+    An 'early-game-champion' performs well in the earlier stage of the game,
+    while a late-game-champion often suffers early on against early-game-champions.
+
+A simple example (with barely any matches to be able to visualise the problem):
+
+![multicollinearity](readme-resources/multicollinearity.png)
+
+Values were unified for appearance reasons.
+
+As seen in the plot, the two values did correlate quiet often.
+Now I couldn't tell which value induced the other as both seemed to be valuable yet similar.
+
+I decided to tweak the values later if I wasn't satisfied with the results.
 
 ## Building the Model
 
@@ -382,5 +406,59 @@ What batch size should have been used?
 - computes the gradient for one training sample and updates the parameter immediately
 - basically the same as mini-batch gradient descent with a batch size of 1
 
-I decided to use 1024 as batch size with 300 epochs.
+I decided to use 1024 as batch size with 300 epochs, which was Mini-Batch Gradient Descent appproach.
 
+## Evaluation
+
+After training my model I ended up on:
+
+    Epoch 298/300
+    31/31 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - accuracy: 0.7683 - loss: 0.5332 - val_accuracy: 0.7672 - val_loss: 0.5272
+    Epoch 299/300
+    31/31 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - accuracy: 0.7621 - loss: 0.5389 - val_accuracy: 0.7700 - val_loss: 0.5262
+    Epoch 300/300
+    31/31 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - accuracy: 0.7661 - loss: 0.5378 - val_accuracy: 0.7707 - val_loss: 0.5265
+    129/129 ━━━━━━━━━━━━━━━━━━━━ 0s 447us/step
+    
+    Accuracy: 0.7716171717189444
+    Precision: 0.7686206896551724
+    Recall: 0.7218796680497925
+    F1-score: 0.7482157123834887
+
+Accuracy of **77.16%** was a very satisfactory result.
+
+*Accuracy* - The proportion of correct predictions (both true positives and true negatives) among the total number of predictions.
+*Precision* - The proportion of true positive predictions among all positive predictions (true positives and false positives). It measures the accuracy of positive predictions.
+*Recall* - The proportion of true positive predictions among all actual positive instances (true positives and false negatives). It measures the ability to identify all positive instances. 
+*F1 Score* - The harmonic mean of precision and recall, providing a single metric that balances both. It is useful when the data is imbalanced.
+
+***ROC Curve and AUC***
+
+A ROC curve (receiver operating characteristic curve) is a graph showing the performance of a classification model at all classification thresholds. This curve plots two parameters:
+
+- True Positive Rate (TPR)
+- False Positive Rate (FPR)
+
+An ROC curve plots TPR vs. FPR at different classification thresholds.
+Lowering the classification threshold classifies more items as positive, thus increasing both False Positives and True Positives.
+
+AUC stands for 'Area under the ROC Curve'.
+That is, AUC measures the entire two-dimensional area underneath the entire ROC curve from (0,0) to (1,0).
+The higher the AUC, the better the predictions.
+
+Here is ROC Curve calculated on my resluts...
+
+![roc-curve](readme-resources/roc.png)
+
+...with an AUC of **0.85** !
+
+## Review
+
+The whole project was a huge challenge for me. It also made me learn a lot of new things
+The classifier created by me predicted the winning team with great accuracy. 
+It's worth to mention League of Legends games can last more than an hour, and from 15 minutes until then, there’s a lot more to happen.
+I tested the model with a huge number of combinations of hyperparameters, activation functions and activity regulators.
+At best, I managed to achieve an accuracy of **77.89%**.
+To potentially beat this score, it is probably necessary to collect more detailed data, i. e. to divide the collected gold in teams to specific players, to collect the hero id of the players as well as their chosen runes and items.
+
+*Thank your for reading and sharing this journey with me.*
