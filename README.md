@@ -60,7 +60,7 @@ Now for each player, with the help of the already acquired PUUID I had to acquir
 
 However, as you can guess, since these are the best players, they play with each other. After checking and removing duplicate game id's. From **100 000** game id's, I was left with only **42172** left (**58.8%** of data was removed).
 
-### Summarisation:
+### Summarization:
 - I used my self-gathered data
 - I got the data with Riot Game's API using different endpoints
 - I used 100 games per player out of 1000 player base
