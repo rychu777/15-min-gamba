@@ -27,14 +27,14 @@ input_layer = Input(shape=(13,))
 norm_layer = Normalization()
 norm_layer.adapt(dataset_train_values)
 
-# Define the keras model 76.2%
+# Define the keras model 76.25%
 model = Sequential()
 model.add(input_layer)
 model.add(norm_layer)
-model.add(Dense(64, input_shape=(13,), activation='hard_sigmoid',activity_regularizer=l2(0.002)))
+model.add(Dense(7, input_shape=(13,), activation='elu',activity_regularizer=l2(0.0001)))
 model.add(PReLU())
-model.add(Dense(32, activation='sigmoid', activity_regularizer=l2(0.0001)))
-model.add(Dense(16, activation='sigmoid', activity_regularizer=l2(0.0001)))
+model.add(Dense(7, activation='elu', activity_regularizer=l2(0.0001)))
+model.add(Dense(7, activation='elu', activity_regularizer=l2(0.0001)))
 model.add(Dense(1, activation='sigmoid', activity_regularizer=l2(0.0001)))
 
 new_learning_rate = 0.001
