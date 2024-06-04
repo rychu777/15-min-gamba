@@ -4,6 +4,7 @@ In the project, I decided to build and train a neural network classifier.
 
 ## Table of Content
 - [Project Object](#project-object)
+- [Technologies](#technologies)
 - [Introduction](#introduction)
 - [Collecting the Data](#collecting-the-data)
 - [The Match Data](#the-match-data)
@@ -18,6 +19,15 @@ In the project, I decided to build and train a neural network classifier.
 ## Project Object
 
 The goal of the project is to effectively predict the outcome of a League of Legends game based on the state of the game at the 15 minutes mark.
+## Technologies
+
+- Keras
+- Sklearn
+- Matplotlib
+- Numpy
+- Seaborn
+- Csv
+- Requests
 
 ## Introduction
 League of Legends (LoL) is a highly popular online multiplayer battle arena video game developed and published by Riot Games. It's a free-to-play game that was first released in 2009, and since then, it has become one of the most prominent and influential games in the esports industry.
@@ -50,7 +60,7 @@ Now for each player, with the help of the already acquired PUUID I had to acquir
 
 However, as you can guess, since these are the best players, they play with each other. After checking and removing duplicate game id's. From **100 000** game id's, I was left with only **42172** left (**58.8%** of data was removed).
 
-### Summarisation:
+### Summarization:
 - I used my self-gathered data
 - I got the data with Riot Game's API using different endpoints
 - I used 100 games per player out of 1000 player base
@@ -213,7 +223,7 @@ Now there are different ways of storing dataframes. The direct comparison shows 
 
 ## Data Cleaning
 
-There was only one types of falsy data I had to sort out:
+There was only one type of incorrect data I had to sort out:
 - falsy data returned by the Riot Games API
 
 Falsy data returned by the Riot Games API was marked by having a '2' in both, blueTeamWin and readTeamWin, to easily sort them out.
@@ -227,13 +237,13 @@ resulting in **41 282** (fourty-one-thousand two-hundred and eighty-two) matches
 
 In this chapter I want to explore my data, I want to take a look at the main characteristics and compare certain values.
 
-The very first thing to show is of course the win rate for each team:
+The very first thing to show is win rate for each team:
 
 ![winrate](readme-resources/winrate.png)
 
 The actual win rate overall in EUNE Server for the **MASTER+** blue team is 48.5 % as of [League Of Graphs](https://www.leagueofgraphs.com/pl/stats/blue-vs-red/eune/master) in the current patch as of writing this (14.11).
 The difference-maker was the fact that **MASTER+** means that we took **CHALLANGER**, **GRANDMASTER**, and **ALL** **MASTER** players.
-**MASTER** tier has currently around **15 000** players. 
+**MASTER** tier has currently around **15 000** players. So we couldn't really compare the values, but it was nice that the values were similar.
 
 You can also take a look at the team's win rate depending on having first blood:
 
@@ -245,22 +255,21 @@ The blue team seems to better at winning games when playing from behind while th
     When a champion or a team has less gold, experience or stats than the opponent,
     they are playing from 'behind'.
 
-Another thing I wanted to show is the correlation between the gold and cs per minute:
+Next thing I wanted to show is the correlation between the gold and cs per minute:
 
 ![cspm-gpm-correlation](readme-resources/cspm_gpm.png)
 
-Out of appearance reasons I only used the data from the blue team if they win and the game duration is over 2.500 (two-thousand five-hundred) seconds.
-Note, that the gold per minute value *should* be higher than the cs per minute value. I divided the gold per minute value by 10 for appearance.  
+Out of appearance reasons I only used the data from the blue team if they win and the game duration is over **2 500** (two-thousand five-hundred) seconds.
+Note, that the gold per minute value *should* be higher than the cs per minute value. The gold per minute value was divided by 10 for appearance reasons.  
 Cs'ing is not the only source of gold income, but it obviously takes a great part of it.
 
     Sidenote:
-    'Cs-ing' describes the procedure of farming minions.
+    'Cs-ing' describes the procedure of farming (killing) minions.
 
-But I am sure the most interesting view is a heatmap:
+The most interesting view is a heatmap showing correlations between values:
 
 ![heatmap](readme-resources/heatmap.png)
 
-The labels on the x-axis are a bit off, I couldn't find a way to fix this. Please orientate on the y-axis.
 These are the values from the blue team, excluding the game duration.
 
 This view is the best to show correlations for variables.
@@ -272,7 +281,7 @@ So is the amount of total minions killed and the cs per minute.
 This chapter covers the creation of variables which were most likely having the biggest impact of the probability of winning.
 This also is where I divided my testing, validation and training data from my whole data set.
 
-I will start off with separating my data:
+I started off with separating my data:
 
     import pandas as pd
 
@@ -336,14 +345,14 @@ If the blue team now wins the game, it's not easy to say which factors (for exam
     An 'early-game-champion' performs well in the earlier stage of the game,
     while a late-game-champion often suffers early on against early-game-champions.
 
-A simple example (with barely any matches to be able to visualise the problem):
+A simple example (made on small data sample):
 
 ![multicollinearity](readme-resources/multicollinearity.png)
 
 Values were unified for appearance reasons.
 
 As seen in the plot, the two values did correlate quiet often.
-Now I couldn't tell which value induced the other as both seemed to be valuable yet similar.
+I couldn't tell which value induced the other as both seemed to be valuable yet similar.
 
 I decided to tweak the values later if I wasn't satisfied with the results.
 
