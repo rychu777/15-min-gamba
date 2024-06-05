@@ -1,4 +1,4 @@
-from keras.regularizers import l2
+from keras.regularizers import l1, l2
 from matplotlib import pyplot as plt
 from numpy import loadtxt
 from keras.optimizers import Adam
@@ -27,7 +27,7 @@ input_layer = Input(shape=(13,))
 norm_layer = Normalization()
 norm_layer.adapt(dataset_train_values)
 
-# Define the keras model 76.25%
+# Define the keras model 77.01%
 model = Sequential()
 model.add(input_layer)
 model.add(norm_layer)
